@@ -11,7 +11,26 @@ let timer;
 const startButton = document.querySelector('.start-button');
 const timerInput = document.querySelector('input#datetime-picker');
 
-const prepareDateTimeValue = value => `${value}`.padStart(2, '0');
+const addLeadingZero = value => `${value}`.padStart(2, '0');
+
+function convertMs(ms) {
+  // Number of milliseconds per unit of time
+  const second = 1000;
+  const minute = second * 60;
+  const hour = minute * 60;
+  const day = hour * 24;
+
+  // Remaining days
+  const days = Math.floor(ms / day);
+  // Remaining hours
+  const hours = Math.floor((ms % day) / hour);
+  // Remaining minutes
+  const minutes = Math.floor(((ms % day) % hour) / minute);
+  // Remaining seconds
+  const seconds = Math.floor((((ms % day) % hour) % minute) / second);
+
+  return { days, hours, minutes, seconds };
+}
 
 const onClose = selectedDates => {
   selectedDate = selectedDates[0];
@@ -20,7 +39,7 @@ const onClose = selectedDates => {
   if (timeDifference <= 0) {
     iziToast.error({
       title: 'Error',
-      message: 'The chosen date and time must be in the future.',
+      message: 'Please choose a date in the future',
       position: 'topRight',
       timeout: 3000,
       close: true,
@@ -31,9 +50,13 @@ const onClose = selectedDates => {
       iconUrl: iconStop,
       iconSize: '24px',
     });
+
+    startButton.classList.add('disabled');
+    startButton.disabled = true;
     return;
   }
   startButton.classList.remove('disabled');
+  startButton.disabled = false;
 };
 
 startButton.addEventListener('click', () => {
@@ -47,27 +70,32 @@ startButton.addEventListener('click', () => {
   }
 
   timer = setInterval(() => {
-    const now = new Date();
-    const remainingTime = selectedDate - now;
+    const remainingTime = selectedDate - new Date();
 
-    dayLabel.textContent = prepareDateTimeValue(
-      Math.floor(remainingTime / (1000 * 60 * 60 * 24))
-    );
-    hourLabel.textContent = prepareDateTimeValue(
-      Math.floor((remainingTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
-    );
-    minuteLabel.textContent = prepareDateTimeValue(
-      Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60))
-    );
-    secondLabel.textContent = prepareDateTimeValue(
-      Math.floor((remainingTime % (1000 * 60)) / 1000)
-    );
+    if (remainingTime <= 0) {
+      clearInterval(timer);
+      timerInput.classList.remove('disabled');
+      timerInput.disabled = false;
+      dayLabel.textContent = '00';
+      hourLabel.textContent = '00';
+      minuteLabel.textContent = '00';
+      secondLabel.textContent = '00';
+      timer = null;
+      return;
+    }
+
+    const { days, hours, minutes, seconds } = convertMs(remainingTime);
+
+    dayLabel.textContent = addLeadingZero(days);
+    hourLabel.textContent = addLeadingZero(hours);
+    minuteLabel.textContent = addLeadingZero(minutes);
+    secondLabel.textContent = addLeadingZero(seconds);
   }, 1000);
 
   startButton.classList.add('disabled');
+  startButton.disabled;
   timerInput.classList.add('disabled');
   timerInput.disabled = true;
-  startButton.disabled;
 });
 
 flatpickr('input#datetime-picker', {
