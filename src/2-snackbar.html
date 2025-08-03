@@ -18,6 +18,25 @@
         Snackbar
       </h1>
       <load src="./partials/back-link.html" />
+      <form class="form">
+        <label class="form-label-delay">
+          Delay (ms)
+          <input class="form-input-delay" type="number" name="delay" required />
+        </label>
+
+        <fieldset class="form-fieldset">
+          <legend class="form-legend">State</legend>
+          <label>
+            <input type="radio" name="state" value="fulfilled" required />
+            Fulfilled
+          </label>
+          <label>
+            <input type="radio" name="state" value="rejected" required />
+            Rejected
+          </label>
+        </fieldset>
+        <button class="form-button" type="submit">Create notification</button>
+      </form>
 
     </div>
   </main>
