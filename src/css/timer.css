@@ -59,7 +59,8 @@
 }
 
 .start-button:hover,
-.start-button:focus {
+.start-button:focus,
+.start-button:active {
     background-color: #6c8cff;
 }
 
